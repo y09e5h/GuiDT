@@ -1,7 +1,8 @@
-//import javax.swing.*;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.FileWriter;
+import java.io.*;
 class Write
 {
 	GuiWindow obj;
@@ -12,19 +13,20 @@ class Write
 	public void writeCode(String line)
 	{
 		obj.tf.setText(line);
-		obj.ta.setText(obj.ta.getText()+"\n"+line+"\nadd("+obj.nametf.getText()+");");
+		obj.ta=obj.ta+"\n"+line+"\nadd("+obj.nametf.getText()+");";
 	}
 	public void fullCodeWriter()
 	{
-		String code = "import java.awt.*;\nimport javax.swing.*;\nclass MyWindow extends JFrame{\n"+obj.varString+"\nMyWindow(){\n"+obj.ta.getText()+"\nsetSize(500,500);\nsetLayout(null);\nsetVisible(true);\n}\n}\npublic class "+obj.nametf.getText()+"{\npublic static void main(String[] args){\nnew MyWindow();\n}\n}";
+		String code = "import java.awt.*;\nimport javax.swing.*;\nclass MyWindow extends JFrame{\n"+obj.varString+"\nMyWindow(){\n"+obj.ta+"\nsetSize(500,500);\nsetLayout(null);\nsetVisible(true);\n}\n}\npublic class "+obj.nametf.getText()+"{\npublic static void main(String[] args){\nnew MyWindow();\n}\n}";
 	try{
 	FileWriter fw=new FileWriter(obj.nametf.getText()+".java");
 	fw.write(code);
+	JOptionPane.showMessageDialog(null,"please check the code in "+obj.nametf.getText()+".java file or\n to compile and run program \n type cmd :\njavac "+obj.nametf.getText()+".java\njava "+obj.nametf.getText()+"\n OR click Run button","Code is submited",JOptionPane.WARNING_MESSAGE);
 	fw.close(); 
 	}
 	catch(Exception e)
 	{
-		System.out.println(e);
+		System.out.println("here exception occer ---"+e);
 	}   
 	}
 }
@@ -39,9 +41,9 @@ class ButtonEvent implements ActionListener
 	}
 	public void actionPerformed(ActionEvent e)
 	{
-		Graphics g = obj.getGraphics();
+		Graphics g = obj.draw.getGraphics();
 		int j=0;
-		for(int i=0;i<1900;i+=10){
+		for(int i=0;i<1900;i+=20){
 			if(j%2==0)
 			{
 				g.setColor(Color.BLUE);
@@ -54,7 +56,7 @@ class ButtonEvent implements ActionListener
 			g.drawLine(i,0,i,1200);
 		}
 		j=0;
-		for(int i=0;i<1200;i+=10){
+		for(int i=0;i<1200;i+=20){
 			if(j%2==0)
 			{
 				g.setColor(Color.BLUE);
@@ -68,22 +70,23 @@ class ButtonEvent implements ActionListener
 		}
 		if(e.getSource()==obj.tb)
 		{
-			obj.itm.setText("Label");
+			obj.itm.setText("Label Selected");
 			obj.opr=1;
 		}
 		else if(e.getSource()==obj.cb)
 		{
-			obj.itm.setText("Button");
+			obj.itm.setText("Button selected");
 			
 			obj.opr=2;
 		}
 		else if(e.getSource()==obj.tbx)
 		{
-			obj.itm.setText("TextField");
+			obj.itm.setText("TextField selected");
 			obj.opr=3;
 		}
 		else if(e.getSource()==obj.submit)
 		{
+			obj.nametf.setEditable(false);
 			wr = new Write(obj);
 			wr.fullCodeWriter();
 		}
@@ -96,6 +99,7 @@ class MouseEvents implements MouseListener
 	int x,y,width,hight;
 	GuiWindow obj;
 	Write wr;
+	
 	MouseEvents(GuiWindow obj)
 	{
 		this.obj = obj;
@@ -119,34 +123,46 @@ class MouseEvents implements MouseListener
 			hight = -hight;
 		}
 		//Graphics g = obj.getGraphics();
+		if(obj.txttf.getText().isEmpty()|| obj.nametf.getText().isEmpty())
+		{
+			JOptionPane.showMessageDialog(obj,"Empty name and Text is not allowed !!","Empty!!",JOptionPane.WARNING_MESSAGE);  
+		}
+		else if(obj.nmlist.contains(obj.nametf.getText()))
+		{
+			JOptionPane.showMessageDialog(obj,"Name is used please try other name","Name is used!!",JOptionPane.WARNING_MESSAGE);
+		}
+		else{
 		switch(obj.opr)
 		{
 			case 1:
 			{
 			//g.setColor(Color.BLACK);
 			//g.drawString("some text :",x,y);
-			Label l = new Label(obj.txttf.getText());
-			l.setBounds(x,y,width,hight);
-			obj.varString = obj.varString+"JLabel "+obj.nametf.getText()+"= new JLabel(\""+obj.txttf.getText()+"\");\n";
-			obj.add(l);
+				obj.nmlist.add(obj.nametf.getText());
+				Label l = new Label(obj.txttf.getText());
+				l.setBounds(x,y,width,hight);
+				obj.varString = obj.varString+"JLabel "+obj.nametf.getText()+"= new JLabel(\""+obj.txttf.getText()+"\");\n";
+				obj.draw.add(l);
 			break;
 			}
 			case 2:
 			{
 			//g.setColor(Color.BLUE);
 			//g.fillRect(x,y,width,hight);
-			Button b = new Button(obj.txttf.getText());
-			b.setBounds(x,y,width,hight);
-			obj.varString = obj.varString+"JButton "+obj.nametf.getText()+"= new JButton(\""+obj.txttf.getText()+"\");\n";
-			obj.add(b);
-			break;
+				obj.nmlist.add(obj.nametf.getText());
+				Button b = new Button(obj.txttf.getText());
+				b.setBounds(x,y,width,hight);
+				obj.varString = obj.varString+"JButton "+obj.nametf.getText()+"= new JButton(\""+obj.txttf.getText()+"\");\n";
+				obj.draw.add(b);
+				break;
 			}
 			case 3:
 			{
+				obj.nmlist.add(obj.nametf.getText());
 				TextField t = new TextField();
 				t.setBounds(x,y,width,hight);
 				obj.varString = obj.varString+"JTextField "+obj.nametf.getText()+"=new JTextField();\n";
-				obj.add(t);
+				obj.draw.add(t);
 				break;
 			}
 			default:
@@ -154,29 +170,81 @@ class MouseEvents implements MouseListener
 
 				break;
 			}
+			
 		}
 		wr.writeCode(obj.nametf.getText()+".setBounds("+x+","+y+","+width+","+hight+");");
-		
 	}
+		
+}
 	
 	public void mouseEntered(MouseEvent e) {}  
     	public void mouseExited(MouseEvent e) {}  
 	public void mouseClicked(MouseEvent e) {}
 	
 }
-class GuiWindow extends Frame 
+class RunProgram implements ActionListener
 {
+	GuiWindow obj;
+	RunProgram(GuiWindow obj)
+	{
+		this.obj = obj;
+	}
+	public void actionPerformed(ActionEvent e)
+	{
+		String s = null;
+		try
+		{
+			String cmd="cd",os=System.getProperty("os.name").toLowerCase();
+			
+			if(os.contains("linux")||os.contains("mac os x")||os.contains("win"))
+			{
+			/*	cmd="pwd";
+				Process p = Runtime.getRuntime().exec(cmd);
+				BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				s= stdInput.readLine();
+			}
+			else if(os.contains("win"))
+			{
+				 s = System.getProperty("user.dir");*/
+			}
+			else
+			{
+				throw new RuntimeException(" unsupported os!!");
+			}			
+			//Process p = Runtime.getRuntime().exec(cmd);
+			//BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			//s= stdInput.readLine();
+			
+			Runtime.getRuntime().exec("javac "+obj.nametf.getText()+".java");
+			Runtime.getRuntime().exec("java "+obj.nametf.getText());
+		}
+		catch(Exception ex)
+		{
+			JOptionPane.showMessageDialog(obj,""+ex,"\nError while running",JOptionPane.WARNING_MESSAGE);
+		}
+	}
+}
+/*class CreadteComponentEvents implements ActionListenre
+{
+	
+}*/
+class GuiWindow extends Frame
+{
+	ArrayList<String> nmlist = new ArrayList<String>();
 	TextField tf,nametf,txttf;
-	TextArea ta;
+	String ta="";
 	int opr=1;
 	Button tb;
 	Button cb,submit;
-	Label itm,namel,txtl;
-	Button tbx;
+	Label itm,namel,txtl,complistlbl;
+	Button tbx,run;
 	String varString="";
+	
+	Frame draw;
 	GuiWindow()
 	{
-		ta = new TextArea();
+		draw = new Frame("Draw");
+		//ta = new TextArea();
 		nametf = new TextField();
 		tf = new TextField();
 		itm = new Label();
@@ -186,11 +254,15 @@ class GuiWindow extends Frame
 		cb = new Button("Button");
 		tbx = new Button("TextField");
 		txtl = new Label("Text");
+		complistlbl = new Label("Components :");
 		txttf = new TextField();
-		submit.setBounds(792,632,202,32);
-		ta.setBounds(781,53,489,557);
+		run = new Button("Run");
+		submit.setBounds(10,532,202,32);
+		run.setBounds(10,620,202,32);
+		//ta.setBounds(781,53,489,557);
+		complistlbl.setBounds(10,80,150,30);
 		tbx.setBounds(10,120,100,30);
-		itm.setBounds(10,80,140,40);
+		itm.setBounds(220,15,180,40);
 		tb.setBounds(10,160,100,30);
 		cb.setBounds(10,200,100,30);
 		tf.setBounds(10,40,200,30);
@@ -201,7 +273,8 @@ class GuiWindow extends Frame
 		add(txtl);
 		add(txttf);
 		add(submit);
-		add(ta);
+		add(run);
+		//add(ta);
 		add(namel);
 		add(nametf);
 		add(tbx);
@@ -209,18 +282,29 @@ class GuiWindow extends Frame
 		add(tf);
 		add(tb);
 		add(cb);
+		add(complistlbl);		
 		//setDefaultCloseOperation(Frame.EXIT_ON_CLOSE);
+		RunProgram pr  = new RunProgram(this);
 		MouseEvents me = new MouseEvents(this);
 		ButtonEvent be = new ButtonEvent(this);
-		addMouseListener(me);
+		run.addActionListener(pr);
+		draw.addMouseListener(me);
 		tb.addActionListener(be);
 		cb.addActionListener(be);
 		tbx.addActionListener(be);
 		submit.addActionListener(be);
-		setSize(500,500);
+		draw.setSize(1050,800);
+		draw.setLocation(300,0);
+		draw.setLayout(null);
+		draw.setVisible(true);
+		setSize(300,800);
 		setLayout(null);
+		setLocation(0,0);
 		setVisible(true);
-		
+		JOptionPane.showMessageDialog(this,"First select the component");  
+		JOptionPane.showMessageDialog(this,"then type name and text for component:");
+		JOptionPane.showMessageDialog(draw,"then draw the component");
+		JOptionPane.showMessageDialog(this,"after complition submit the code"); 
 	}
 	
 }
